@@ -50,7 +50,7 @@
   // Handle project creation
   function handleCreateProject(e) {
     e.preventDefault();
-    // In a real application, this would create the project in the backend
+    //this would create the project in the backend
     alert(`Project "${projectName}" created successfully!`);
     navigateTo('dashboard');
   }
