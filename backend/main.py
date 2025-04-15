@@ -21,15 +21,26 @@ class ProxyRequest(BaseModel):
 async def crawl_endpoint(config: CrawlRequest):
     try:
         crawler = Crawler()
-        results = crawler.crawl(config.url, max_pages=int(config.max_pages or 5))
+        results = []
+
+        # async loop through start_crawl generator
+        async for result in crawler.start_crawl(config.dict()):
+            results.append(result)
+
         return {
             "summary": {
                 "total_crawled": len(results),
+                "processed_requests": results[-1]["processed_requests"] if results else 0,
+                "filtered_requests": results[-1]["filtered_requests"] if results else 0,
+                "requests_per_second": crawler.requests_per_sec,
+                "crawl_time": crawler.crawl_time
             },
             "results": results
         }
     except Exception as e:
         return {"error": str(e)}
+
+
 
 
 @app.post("/proxy-request")

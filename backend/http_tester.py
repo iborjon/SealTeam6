@@ -1,16 +1,29 @@
 import socket
 from urllib.parse import urlparse
 
-def send_http_request(url, method="GET"):
+def send_http_request(url, method="GET", headers=None):
     parsed = urlparse(url)
     host = parsed.netloc
     path = parsed.path or "/"
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(5)
         s.connect((host, 80))
 
-        request = f"{method} {path} HTTP/1.0\r\nHost: {host}\r\n\r\n"
+        # Build header string
+        header_lines = [
+            f"{method} {path} HTTP/1.0",
+            f"Host: {host}",
+        ]
+
+        if headers:
+            for key, value in headers.items():
+                header_lines.append(f"{key}: {value}")
+
+        header_lines.append("\r\n")  # Ends headers
+        request = "\r\n".join(header_lines)
+
         s.send(request.encode())
 
         response = b""
@@ -20,9 +33,26 @@ def send_http_request(url, method="GET"):
                 break
             response += data
         s.close()
-        return response.decode(errors='ignore')
+
+        decoded = response.decode(errors='ignore')
+        header_end = decoded.find("\r\n\r\n")
+        headers_text = decoded[:header_end]
+        body = decoded[header_end+4:] if header_end != -1 else decoded
+
+        status_line = headers_text.splitlines()[0]
+        parts = status_line.split()
+        status_code = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 0
+
+        return {
+            "status_code": status_code,
+            "body": body
+        }
+
     except Exception as e:
-        return f"Error: {e}"
+        return {
+            "status_code": 0,
+            "body": f"Error: {e}"
+        }
 
 # Example usage
 if __name__ == "__main__":
