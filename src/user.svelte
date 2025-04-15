@@ -1,5 +1,5 @@
 <script>
-  import { goto } from '$app/navigation'; // Import the goto function for navigation
+  //import { goto } from '$app/navigation'; // Import the goto function for navigation
 
   let initials = '';
   let errorMessage = null;
