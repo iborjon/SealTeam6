@@ -1,34 +1,27 @@
 <script>
-  import "../styles/styles.css";  // Import our custom CSS file
-
-  // Set the API base URL to the FastAPI backend (adjust as needed)
-  const API_BASE_URL = "http://localhost:8000";
-
-  // State variables for the login form
-  let userName = "";
-  let userInitials = "";
+  
+  // State variables
+  let initials = "";
   let errorMessage = "";
 
-  async function handleLogin(e) {
-    e.preventDefault();
-    
-    if (!userName.trim() || !userInitials.trim()) {
-      errorMessage = "Please enter both your name and initials";
+  async function handleStart() {
+    if (!initials.trim()) {
+      errorMessage = "Please enter your initials before starting.";
       return;
     }
     
-    // Call the backend to check if the initials are valid
     try {
-      const response = await fetch(`${API_BASE_URL}/check_initials?initials=${userInitials}`);
+      const response = await fetch(`${API_BASE_URL}/check_initials?initials=${initials}`);
       if (!response.ok) {
         throw new Error("Failed to verify initials");
       }
       const data = await response.json();
+      
       if (data.is_valid) {
-        // If valid, redirect to the other team’s dashboard
+        // If valid, redirect to the dashboard endpoint
         window.location.href = API_BASE_URL + "/";
       } else {
-        errorMessage = "Invalid initials. You do not have permission to access the dashboard.";
+        errorMessage = "Invalid initials. You are not authorized to access the dashboard.";
       }
     } catch (err) {
       console.error(err);
@@ -38,64 +31,149 @@
 </script>
 
 <style>
-  /* Increase the welcome box size as a fixed square */
+  /* Ensure html and body fill the screen */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Full-screen landing page with dark gray background */
+  .landing-section {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  header nav a {
+    font-size: 1.125rem;
+    margin: 0 0.75rem;
+    text-decoration: none;
+    color: #4b5563;
+  }
+  header nav a:hover {
+    text-decoration: underline;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+  }
+
+  .error {
+    color: #b91c1c;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #b91c1c;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    width: 80%;
+    text-align: center;
+  }
+
+  /*grey box*/
   .welcome-box {
-    width: 500px;
-    height: 500px;
+    width: 300px;
+    height: 300px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     padding: 2rem;
+    background-color:#2a2a2a;
+    border-radius: 8px;
     box-sizing: border-box;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: -30px; /* Moves the box upward slightly */
+    text-align: center;
   }
-  /* Increase font sizes for uniform appearance */
-  .welcome-box h2 {
-    font-size: 2.5rem;  /* Larger header text */
+
+  .welcome-box input {
+    font-size: 1rem;
+    padding: 0.5rem;
+    width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     margin-bottom: 1rem;
     text-align: center;
   }
-  .welcome-box label {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-  .welcome-box input {
-    font-size: 1.25rem;
-    padding: 0.75rem;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+
   .welcome-box button {
-    font-size: 1.25rem;
-    padding: 0.75rem;
-    width: 100%;
-    background-color: #3b82f6; /* blue-500 */
+    font-size: 1rem;
+    padding: 0.5rem;
+    width: 60%;
+    background-color: #3b82f6;
     color: white;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
   }
-  .error {
-    color: red;
-    font-size: 1.25rem;
+
+  .welcome-box button:hover {
+    background-color: #2563eb;
   }
 </style>
 
-<!-- Welcome/Login Page -->
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-  <form on:submit={handleLogin} class="welcome-box bg-white rounded shadow-md">
-    <h2>Welcome to TRACE</h2>
+<!-- Landing Page -->
+<div class="landing-section">
+  <!-- Header Navigation -->
+  <header>
+    <nav>
+      <a href="#">Dashboard</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <h1>TRACE</h1>
+    <p class="subtitle">
+      A Cybersecurity Platform to Protect Your Digital Assets. Detect Vulnerabilities, Strengthen Defense, and Secure Your Network Seamlessly.
+      Gain Real-Time Insights and Proactive Protection.
+    </p>
+
     {#if errorMessage}
       <p class="error">{errorMessage}</p>
     {/if}
-    <div class="mb-4">
-      <label>Full Name</label>
-      <input type="text" bind:value={userName} />
+
+    <!-- Welcome Box with initials input and Start button -->
+    <div class="welcome-box">
+      <input
+        type="text"
+        placeholder="Enter your initials"
+        bind:value={initials}
+      />
+      <button on:click={handleStart}>START</button>
     </div>
-    <div class="mb-4">
-      <label>Initials</label>
-      <input type="text" bind:value={userInitials} />
-    </div>
-    <button type="submit">Start</button>
-  </form>
+  </main>
 </div>
