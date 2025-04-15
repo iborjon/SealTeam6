@@ -1,31 +1,18 @@
 <script>
-  
-  // State variables
-  let initials = "";
-  let errorMessage = "";
+  import { goto } from '$app/navigation'; // Import the goto function for navigation
+
+  let initials = '';
+  let errorMessage = null;
+  const correctInitials = 'MR'; 
 
   async function handleStart() {
-    if (!initials.trim()) {
-      errorMessage = "Please enter your initials before starting.";
-      return;
-    }
-    
-    try {
-      const response = await fetch(`${API_BASE_URL}/check_initials?initials=${initials}`);
-      if (!response.ok) {
-        throw new Error("Failed to verify initials");
-      }
-      const data = await response.json();
-      
-      if (data.is_valid) {
-        // If valid, redirect to the dashboard endpoint
-        window.location.href = API_BASE_URL + "/";
-      } else {
-        errorMessage = "Invalid initials. You are not authorized to access the dashboard.";
-      }
-    } catch (err) {
-      console.error(err);
-      errorMessage = "Error connecting to the verification service.";
+    if (initials.toUpperCase() === correctInitials.toUpperCase()) {
+      // Redirect to the dashboard route.
+      // Adjust the path in the goto function.
+      goto('/');
+    } else {
+      errorMessage = 'Incorrect initials. Please try again.';
+      initials = '';
     }
   }
 </script>
